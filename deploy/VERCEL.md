@@ -8,7 +8,10 @@ storage, use a VPS/GPU server or object storage alongside Vercel.
 ## What is already configured
 
 - `pyproject.toml` points Vercel to `backend.main:app`.
-- `vercel.json` keeps the project on Vercel's standard configuration schema.
+- `api/index.py` exposes the FastAPI app through Vercel's Python Function
+  entrypoint.
+- `vercel.json` routes all paths to that Function and sets the function duration
+  to 300 seconds.
 - `.python-version` selects Python 3.12.
 - `.vercelignore` keeps local virtualenv/cache/server-only deploy files out of
   the deployment bundle.
