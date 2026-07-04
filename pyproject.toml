@@ -1,2 +1,12 @@
-[tool.vercel]
-entrypoint = "backend.main:app"
+[project]
+name = "koft-footfit-ai"
+version = "0.1.0"
+description = "Koft FootFit AI FastAPI application"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "python-multipart>=0.0.9",
+  "numpy>=1.26",
+  "pillow>=10.0",
+]

@@ -7,7 +7,8 @@ storage, use a VPS/GPU server or object storage alongside Vercel.
 
 ## What is already configured
 
-- `pyproject.toml` points Vercel to `backend.main:app`.
+- `pyproject.toml` defines Python 3.12 project metadata and deployment
+  dependencies for Vercel's Python runtime.
 - `api/index.py` exposes the FastAPI app through Vercel's Python Function
   entrypoint.
 - `vercel.json` routes all paths to that Function and sets the function duration
