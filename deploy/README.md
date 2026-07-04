@@ -17,7 +17,7 @@ The apex and `www` records were resolving to parking-page IPs, not this app.
 
 ## DNS records to set
 
-In the DNS provider for `koft.app`, set:
+For the VPS/nginx setup, set:
 
 ```text
 koft.app      A      <YOUR_SERVER_PUBLIC_IPV4>
@@ -28,6 +28,15 @@ If your DNS provider does not allow CNAME at `www`, use another A record:
 
 ```text
 www.koft.app  A      <YOUR_SERVER_PUBLIC_IPV4>
+```
+
+For the Vercel setup, use `deploy/VERCEL.md`. At the time Vercel was connected,
+the recommended DNS records were:
+
+```text
+koft.app      A      216.198.79.1
+koft.app      A      64.29.17.1
+www.koft.app  CNAME  b83491e0ead07f42.vercel-dns-017.com
 ```
 
 ## Server setup

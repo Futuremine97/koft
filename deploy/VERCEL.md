@@ -41,14 +41,23 @@ Python dependencies from `requirements.txt`.
    - `koft.app`
    - `www.koft.app`
 2. In Sav/DNS settings, remove the current parking A records.
-3. Add the DNS records Vercel shows in the dashboard. The common setup is:
+3. Add the DNS records Vercel shows in the dashboard. Current Vercel
+   verification recommends:
 
 ```text
-@     A      76.76.21.21
-www   CNAME  cname.vercel-dns.com
+@     A      216.198.79.1
+@     A      64.29.17.1
+www   CNAME  b83491e0ead07f42.vercel-dns-017.com
 ```
 
 Use the exact records Vercel displays if they differ.
+
+Alternatively, switch nameservers at Sav to Vercel DNS:
+
+```text
+ns1.vercel-dns.com
+ns2.vercel-dns.com
+```
 
 ## Important limits
 
