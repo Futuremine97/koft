@@ -1,0 +1,14 @@
+[Unit]
+Description=FootFit AI FastAPI app for koft.app
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/3d_shoes
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/3d_shoes/.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

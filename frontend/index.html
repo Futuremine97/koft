@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="copyright" content="Copyright 2026 Futuremine97 (Koft). All rights reserved.">
+<meta name="license" content="Proprietary - All Rights Reserved">
+<title>FootFit AI — 발 3D 재구성 & 신발 Inverse Design</title>
+<link rel="stylesheet" href="/static/style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <h1>FootFit <span>AI</span></h1>
+    <p class="sub">사진 몇 장 → 발 3D 재구성 → 최적 신발 inverse design</p>
+    <div id="licensePill">© 2026 Koft · Proprietary</div>
+
+    <section>
+      <h2>1. 발 사진 업로드 <small>(2~8장, 여러 각도)</small></h2>
+      <div id="dropzone">
+        <input type="file" id="photos" accept="image/*" multiple hidden>
+        <p>클릭 또는 드래그하여 사진 추가</p>
+        <div id="thumbs"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. LiDAR 센서 데이터 <small>(선택)</small></h2>
+      <label class="toggle">
+        <input type="checkbox" id="useLidar">
+        <span class="slider"></span>
+        <span class="toggle-label">LiDAR 융합 사용</span>
+      </label>
+      <div id="lidarBox" class="hidden">
+        <input type="file" id="lidarFile" accept=".ply,.json,.xyz,.txt">
+        <p class="hint">.ply / .json / .xyz — iPhone Pro 3D 스캔 앱 내보내기 지원.
+        LiDAR는 절대 스케일(mm)을 제공해 정확도가 크게 향상됩니다.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. 옵션</h2>
+      <label>재구성 엔진
+        <select id="engine">
+          <option value="auto">자동 (VGGT 있으면 사용, 없으면 데모)</option>
+          <option value="vggt">VGGT (실제 SoTA, GPU 권장)</option>
+          <option value="demo">데모 (통계적 발 모델)</option>
+        </select>
+      </label>
+      <label>착화 용도 (핏 여유)
+        <select id="fit">
+          <option value="everyday">일상용 (+7mm)</option>
+          <option value="running">러닝 (+10mm)</option>
+          <option value="dress">드레스 (+5mm)</option>
+          <option value="snug">타이트 (+3mm)</option>
+        </select>
+      </label>
+      <label>실측 발 길이 mm <small>(선택 — 스케일 보정)</small>
+        <input type="number" id="trueLen" placeholder="예: 260" min="180" max="330">
+      </label>
+    </section>
+
+    <button id="runBtn" disabled>3D 재구성 &amp; Inverse Design 실행</button>
+    <div id="statusMsg"></div>
+
+    <section id="results" class="hidden">
+      <h2>측정 결과</h2>
+      <div id="measGrid" class="grid"></div>
+      <h2>발가락별 3D 재구성</h2>
+      <div id="toeReconGrid" class="grid"></div>
+      <h2>감지 결과</h2>
+      <div id="detectionGrid" class="grid"></div>
+      <h2>새끼발가락 핏 체크 <small>(신발 적합도)</small></h2>
+      <div id="fitCheckSummary"></div>
+      <div id="fitZoneGrid" class="grid"></div>
+      <h2>보행 동적 편안함 시뮬레이션</h2>
+      <div id="dynamicSummary"></div>
+      <div id="dynamicMetricGrid" class="grid"></div>
+      <div id="gaitPhaseList"></div>
+      <h2>저작물/제작 등급</h2>
+      <div id="artifactQuality"></div>
+      <h2>추천 디자인 <small>(소재·텍스처·프린팅)</small></h2>
+      <div id="designSummary"></div>
+      <div id="materialGrid" class="grid"></div>
+      <div id="textureGrid" class="grid"></div>
+      <h2>브랜드 참고 추천</h2>
+      <div id="brandGrid"></div>
+      <h2>사이즈 추천</h2>
+      <div id="sizeCards"></div>
+      <div id="fitNotes"></div>
+      <h2>다운로드 (3D 프린팅/제작용)</h2>
+      <div id="downloads" class="grid"></div>
+    </section>
+  </aside>
+
+  <main id="viewer">
+    <div id="tabs">
+      <button class="tab active" data-view="points">포인트클라우드</button>
+      <button class="tab" data-view="foot">발</button>
+      <button class="tab" data-view="toes">발가락</button>
+      <button class="tab" data-view="last">라스트</button>
+      <button class="tab" data-view="shoe">신발</button>
+      <button class="tab" data-view="insole">인솔</button>
+      <button class="tab" data-view="overlay">겹쳐보기</button>
+    </div>
+    <div id="canvasWrap"></div>
+    <div id="engineBadge" class="hidden"></div>
+  </main>
+</div>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>
