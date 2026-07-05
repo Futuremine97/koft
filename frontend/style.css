@@ -153,6 +153,24 @@ select, input[type=number], input[type=text], input[type=file] {
 .design-rationale { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 .design-rationale span { color: var(--muted); font-size: 11px; line-height: 1.4; }
 
+.texture-zone-head {
+  display: flex; flex-direction: column; gap: 3px; margin: 8px 0;
+  border: 1px solid rgba(91, 140, 255, .34); background: rgba(91, 140, 255, .08);
+  border-radius: 10px; padding: 10px 12px;
+}
+.texture-zone-head strong { font-size: 12px; }
+.texture-zone-head span { color: var(--muted); font-size: 11px; }
+.texture-zones { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.texture-zone {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px;
+  border: 1px solid var(--border); background: var(--panel2); border-radius: 8px; padding: 9px 10px;
+}
+.texture-zone strong { display: block; font-size: 11.5px; }
+.texture-zone span { display: block; color: #c3c8d8; font-size: 11px; line-height: 1.35; margin-top: 2px; }
+.texture-zone em { color: var(--accent2); font-style: normal; font-size: 11px; font-weight: 800; }
+.texture-zone p { grid-column: 1 / -1; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.texture-print-note { color: #ffd98a; font-size: 11px; line-height: 1.4; margin: 2px 0 14px; }
+
 #brandGrid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .brand-card {
   display: grid; grid-template-columns: 42px 1fr; gap: 10px; align-items: start;

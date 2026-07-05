@@ -89,6 +89,7 @@ LiDAR ──┘ (선택 융합)                          │
                                               │
                                               ▼
         Inverse Design: 라스트 → 신발(갑피+밑창) → 커스텀 인솔(아치서포트+힐컵)
+        └─ 텍스처 시스템: 갑피 프리셋·부위별 패턴 존·아웃솔 러그·프린팅 최소 피처
                                               │
                                               ▼
                         3D 뷰어 + STL/OBJ/PLY 다운로드
@@ -119,6 +120,7 @@ backend/
     measurements.py        # 발 측정치 추출
     sizing.py              # 사이즈/핏 추천
   design/
+    recommendation.py        # 소재·텍스처 프리셋·브랜드 추천
     last.py / shoe.py / insole.py / export.py   # inverse design + STL/OBJ
 frontend/
   index.html / app.js / style.css               # Three.js 뷰어 UI

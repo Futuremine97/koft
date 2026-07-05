@@ -365,6 +365,7 @@ function render(d) {
   const design = d.design || {};
   const material = design.material_stack || {};
   const texture = design.texture || {};
+  const textureSystem = design.texture_system || {};
   const print = design.print_profile || {};
   document.getElementById('designSummary').innerHTML = `
     <div class="design-main">
@@ -383,13 +384,29 @@ function render(d) {
     `<div class="card"><div class="k">${k}</div><div class="v small">${v}</div></div>`).join('');
 
   const textureItems = [
-    ['갑피 텍스처', texture.upper],
-    ['아웃솔 패턴', texture.outsole],
+    ['텍스처 프리셋', textureSystem.name || texture.upper],
+    ['갑피 패턴', textureSystem.upper_pattern || texture.upper],
+    ['아웃솔 패턴', textureSystem.outsole_pattern || texture.outsole],
     ['토박스', texture.toe_box],
+    ['최소 피처', `${textureSystem.manufacturing?.min_feature_mm || '-'} mm`],
     ['프린트', `${print.recommended_process || ''} · ${print.infill || ''}`],
   ].filter(([, v]) => v);
   document.getElementById('textureGrid').innerHTML = textureItems.map(([k, v]) =>
     `<div class="card"><div class="k">${k}</div><div class="v small">${v}</div></div>`).join('');
+  document.getElementById('textureZoneList').innerHTML = `
+    <div class="texture-zone-head">
+      <strong>${textureSystem.finish?.upper_surface || 'matte TPU texture'}</strong>
+      <span>${textureSystem.finish?.colorway || ''}</span>
+    </div>
+    <div class="texture-zones">
+      ${(textureSystem.zones || []).map(z => `
+        <div class="texture-zone">
+          <div><strong>${z.name}</strong><span>${z.pattern}</span></div>
+          <em>${z.depth_mm}mm</em>
+          <p>${z.purpose}</p>
+        </div>`).join('')}
+    </div>
+    <div class="texture-print-note">${textureSystem.manufacturing?.print_note || ''}</div>`;
 
   document.getElementById('brandGrid').innerHTML = (design.brand_recommendations || []).map(b => `
     <a class="brand-card" href="${b.url}" target="_blank" rel="noopener">
