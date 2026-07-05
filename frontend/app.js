@@ -30,13 +30,14 @@ new ResizeObserver(resize).observe(wrap); resize();
 
 // ---------- 모델 그룹 ----------
 const groups = {};
-for (const name of ['points', 'foot', 'toes', 'last', 'shoe', 'insole']) {
+for (const name of ['points', 'foot', 'toes', 'voxels', 'last', 'shoe', 'insole']) {
   groups[name] = new THREE.Group(); groups[name].visible = false; scene.add(groups[name]);
 }
 
 const MATS = {
   foot: new THREE.MeshStandardMaterial({ color: 0xd9a066, roughness: 0.7, side: THREE.DoubleSide }),
   toes: new THREE.MeshStandardMaterial({ color: 0xf2c08f, roughness: 0.68, side: THREE.DoubleSide }),
+  voxels: new THREE.MeshStandardMaterial({ color: 0x9d7cff, roughness: 0.58, side: THREE.DoubleSide }),
   last: new THREE.MeshStandardMaterial({ color: 0x5b8cff, roughness: 0.45, side: THREE.DoubleSide }),
   shoe: new THREE.MeshStandardMaterial({ color: 0x35d0a5, roughness: 0.55, side: THREE.DoubleSide }),
   insole: new THREE.MeshStandardMaterial({ color: 0xff8a5b, roughness: 0.6, side: THREE.DoubleSide }),
@@ -119,9 +120,10 @@ document.getElementById('useLidar').onchange = e =>
 const badge = document.getElementById('engineBadge');
 fetch('/api/status').then(r => r.json()).then(s => {
   badge.classList.remove('hidden');
+  const apiCount = (s.external_models || []).length;
   badge.textContent = s.vggt_available
-    ? '엔진: VGGT-1B (실제 SoTA) 사용 가능'
-    : '엔진: 데모 모드 (VGGT 미설치 — README 참고)';
+    ? `엔진: VGGT + NeRF/Voxel + API ${apiCount}개`
+    : `엔진: 데모 + NeRF/Voxel + API ${apiCount}개`;
 });
 
 // ---------- 실행 ----------
@@ -207,6 +209,9 @@ runBtn.onclick = async () => {
     const lf = document.getElementById('lidarFile').files[0];
     if (useLidar && lf) fd.append('lidar', lf);
     fd.append('engine', document.getElementById('engine').value);
+    const apiModel = document.getElementById('apiModel').value.trim();
+    if (apiModel) fd.append('api_model', apiModel);
+    fd.append('voxel_resolution', document.getElementById('voxelResolution').value || '32');
     fd.append('fit', document.getElementById('fit').value);
     const tl = document.getElementById('trueLen').value;
     if (tl) fd.append('true_length_mm', tl);
@@ -231,6 +236,7 @@ function render(d) {
   setPoints(d.points);
   setMesh('foot', d.meshes.foot);
   setMesh('toes', d.meshes.toes);
+  setMesh('voxels', d.meshes.voxels);
   setMesh('last', d.meshes.last);
   setMesh('shoe', d.meshes.shoe);
   setMesh('insole', d.meshes.insole);
@@ -257,6 +263,17 @@ function render(d) {
   const toeRecon = d.toe_reconstruction || {};
   document.getElementById('toeReconGrid').innerHTML = (toeRecon.toes || []).map(t =>
     `<div class="card toe-card"><div class="k">${t.label}</div><div class="v">${t.length_mm} mm</div><div class="meta">폭 ${t.width_mm} mm · 높이 ${t.height_mm} mm · 신뢰 ${pct(t.confidence)}</div></div>`).join('');
+
+  const vox = d.voxel_reconstruction || {};
+  const modelInfo = d.model_info || {};
+  const voxelItems = [
+    ['점유 Voxel', `${(vox.occupied || 0).toLocaleString()}개`],
+    ['Voxel 크기', `${vox.voxel_size_mm ?? 0} mm`],
+    ['해상도', `${vox.resolution || 0}³`],
+    ['모델 정보', modelInfo.id ? `${modelInfo.kind || 'api'} · ${modelInfo.id}` : (modelInfo.type || d.engine_used)],
+  ];
+  document.getElementById('voxelGrid').innerHTML = voxelItems.map(([k, v]) =>
+    `<div class="card voxel-card"><div class="k">${k}</div><div class="v small">${v}</div><div class="meta">${k === '점유 Voxel' ? `신뢰 ${pct(vox.confidence)}` : ''}</div></div>`).join('');
 
   const det = m.detections || {};
   const rotation = det.rotation || {};
@@ -400,6 +417,7 @@ function render(d) {
   const dls = [
     ['완성 신발 STL', `shoe.stl`], ['완성 신발 OBJ', `shoe.obj`],
     ['발가락 STL', `toes.stl`], ['발가락 OBJ', `toes.obj`],
+    ['Voxel STL', `voxels.stl`], ['Voxel OBJ', `voxels.obj`],
     ['디자인 JSON', `design.json`], ['라스트 STL', `last.stl`],
     ['인솔 STL', `insole.stl`], ['발 메쉬 STL', `foot.stl`],
     ['포인트 PLY', `points.ply`],

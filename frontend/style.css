@@ -45,7 +45,7 @@ h2 small { color: var(--muted); font-weight: 400; }
 #lidarBox { margin-top: 10px; }
 
 label { display: block; font-size: 12.5px; color: #c3c8d8; margin-bottom: 10px; }
-select, input[type=number], input[type=file] {
+select, input[type=number], input[type=text], input[type=file] {
   width: 100%; margin-top: 4px; padding: 8px 10px; border-radius: 8px;
   background: var(--panel2); color: var(--text); border: 1px solid var(--border); font-size: 13px;
 }
@@ -69,6 +69,7 @@ select, input[type=number], input[type=file] {
 .card .v small { font-size: 11px; color: var(--muted); font-weight: 400; }
 .card .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
 .toe-card { border-color: rgba(242, 192, 143, .42); }
+.voxel-card { border-color: rgba(157, 124, 255, .46); }
 .detect.normal { border-color: rgba(53, 208, 165, .45); }
 .detect.mild { border-color: rgba(255, 217, 138, .55); }
 .detect.moderate, .detect.high { border-color: rgba(255, 168, 91, .68); }

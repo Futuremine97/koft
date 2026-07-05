@@ -35,6 +35,16 @@ vercel --prod
 When prompted, choose the current folder as the project root. Vercel will install
 Python dependencies from `requirements.txt`.
 
+Optional external AI model API variables can be added in Vercel Project Settings:
+
+```text
+KOFT_AI_MODELS_JSON
+KOFT_RECON_API_URL
+KOFT_RECON_API_KEY
+KOFT_RECON_API_KIND
+KOFT_RECON_API_TIMEOUT
+```
+
 ## Domain setup for koft.app
 
 1. In Vercel Dashboard, open the project and add these domains:

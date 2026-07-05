@@ -30,6 +30,7 @@ from .design.toes import reconstruct_toes
 from .meshutil import loft
 from .reconstruction import engine as recon_engine
 from .reconstruction.demo_engine import foot_sections
+from .reconstruction.voxel import voxelize
 
 app = FastAPI(title="FootFit AI")
 
@@ -91,6 +92,8 @@ async def reconstruct(
     lidar: Optional[UploadFile] = File(None),
     use_lidar: bool = Form(False),
     engine: str = Form("auto"),
+    api_model: Optional[str] = Form(None),
+    voxel_resolution: int = Form(32),
     fit: str = Form("everyday"),
     true_length_mm: Optional[float] = Form(None),
 ):
@@ -109,6 +112,7 @@ async def reconstruct(
             lidar_file=lidar_file,
             use_lidar=use_lidar,
             true_length_mm=true_length_mm,
+            api_model=api_model,
         )
     except Exception as e:  # noqa: BLE001
         raise HTTPException(500, f"재구성 실패: {e}") from e
@@ -145,6 +149,9 @@ async def reconstruct(
     )
     design["artifact_quality"] = artifact_quality
     design["license"] = LICENSE_NOTICE
+    voxel_max = 420 if os.getenv("VERCEL") else 900
+    voxel_mesh = voxelize(pts, resolution=voxel_resolution, max_voxels=voxel_max)
+    voxel_report = voxel_mesh[2]
     last_mesh = build_last(lp)
     shoe_mesh = build_shoe(lp, design_profile=design["mesh_params"])
     insole_mesh = build_insole(meas, lp)
@@ -154,6 +161,7 @@ async def reconstruct(
         "points": pts,
         "foot": foot_mesh,
         "toes": toes_mesh,
+        "voxels": (voxel_mesh[0], voxel_mesh[1]),
         "last": last_mesh,
         "shoe": shoe_mesh,
         "insole": insole_mesh,
@@ -174,9 +182,11 @@ async def reconstruct(
         "scale_source": result["scale_source"],
         "lidar_used": result["lidar_used"],
         "note": result.get("note", ""),
+        "model_info": result.get("api_model") or result.get("field") or {},
         "n_photos": len(image_bytes),
         "measurements": meas,
         "toe_reconstruction": toe_reconstruction,
+        "voxel_reconstruction": voxel_report,
         "dynamic_simulation": dynamic_simulation,
         "artifact_quality": artifact_quality,
         "sizing": sizing,
@@ -186,6 +196,7 @@ async def reconstruct(
         "meshes": {
             "foot": _mesh_json(*foot_mesh),
             "toes": _mesh_json(*toes_mesh),
+            "voxels": _mesh_json(voxel_mesh[0], voxel_mesh[1]),
             "last": _mesh_json(*last_mesh),
             "shoe": _mesh_json(*shoe_mesh),
             "insole": _mesh_json(*insole_mesh),
@@ -208,7 +219,7 @@ def export(rid: str, kind: str, fmt: str):
             raise HTTPException(400, "디자인 브리프는 .json만 지원")
         data = json.dumps(store["design"], ensure_ascii=False, indent=2).encode("utf-8")
         media = "application/json"
-    elif kind in ("foot", "toes", "last", "shoe", "insole"):
+    elif kind in ("foot", "toes", "voxels", "last", "shoe", "insole"):
         v, f = store[kind]
         if fmt == "stl":
             data = to_stl(v, f, name=f"Koft proprietary {kind}".encode())

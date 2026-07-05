@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from . import demo_engine, lidar, vggt_engine
+from . import api_engine, demo_engine, lidar, nerf_engine, vggt_engine
 
 
 def align_foot(points: np.ndarray) -> np.ndarray:
@@ -58,8 +58,10 @@ def reconstruct(
     lidar_file: Optional[tuple[str, bytes]] = None,
     use_lidar: bool = False,
     true_length_mm: Optional[float] = None,
+    api_model: Optional[str] = None,
 ) -> dict:
     requested = engine
+    api_model = (api_model or "").strip() or "custom"
     if engine == "auto":
         engine = "vggt" if vggt_engine.available() else "demo"
 
@@ -71,6 +73,23 @@ def reconstruct(
                 raise
             result = demo_engine.reconstruct(image_bytes, true_length_mm)
             result["note"] += f" (VGGT 폴백 사유: {e})"
+    elif engine == "nerf":
+        nerf_api = next((m["id"] for m in api_engine.available_models() if m.get("kind") == "nerf"), "")
+        if nerf_api:
+            try:
+                result = api_engine.reconstruct(image_bytes, nerf_api, true_length_mm=true_length_mm)
+            except api_engine.APIEngineUnavailable as e:
+                result = nerf_engine.reconstruct(image_bytes, true_length_mm=true_length_mm)
+                result["note"] += f" (NeRF API 폴백 사유: {e})"
+        else:
+            result = nerf_engine.reconstruct(image_bytes, true_length_mm=true_length_mm)
+    elif engine == "api" or engine.startswith("api:"):
+        model_id = engine.split(":", 1)[1] if engine.startswith("api:") else api_model
+        result = api_engine.reconstruct(image_bytes, model_id, true_length_mm=true_length_mm)
+    elif engine == "voxel":
+        result = demo_engine.reconstruct(image_bytes, true_length_mm)
+        result["engine"] = "voxel"
+        result["note"] += " Voxel 모드: 후처리 단계에서 점유 voxel mesh를 함께 생성."
     else:
         result = demo_engine.reconstruct(image_bytes, true_length_mm)
 
@@ -106,7 +125,24 @@ def reconstruct(
 
 
 def status() -> dict:
+    external = api_engine.available_models()
+    engines = [
+        {"id": "auto", "label": "자동", "available": True, "kind": "router"},
+        {"id": "demo", "label": "데모 통계 모델", "available": True, "kind": "local"},
+        {"id": "voxel", "label": "Voxel reconstruction", "available": True, "kind": "local"},
+        {"id": "nerf", "label": "NeRF/API volumetric", "available": True, "kind": "local_or_api"},
+        {"id": "vggt", "label": "VGGT", "available": vggt_engine.available(), "kind": "local"},
+    ]
+    engines.extend({
+        "id": f"api:{m['id']}",
+        "label": f"API: {m['id']}",
+        "available": m.get("configured", False),
+        "kind": m.get("kind", "api"),
+        "has_key": m.get("has_key", False),
+    } for m in external)
     return {
         "vggt_available": vggt_engine.available(),
         "active_default": "vggt" if vggt_engine.available() else "demo",
+        "engines": engines,
+        "external_models": external,
     }

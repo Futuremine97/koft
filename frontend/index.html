@@ -52,8 +52,17 @@
         <select id="engine">
           <option value="auto">자동 (VGGT 있으면 사용, 없으면 데모)</option>
           <option value="vggt">VGGT (실제 SoTA, GPU 권장)</option>
+          <option value="nerf">NeRF / Volumetric</option>
+          <option value="voxel">Voxel reconstruction</option>
+          <option value="api">외부 AI API</option>
           <option value="demo">데모 (통계적 발 모델)</option>
         </select>
+      </label>
+      <label>API 모델 ID
+        <input type="text" id="apiModel" placeholder="예: custom, nerf_cloud, meshy" autocomplete="off">
+      </label>
+      <label>Voxel 해상도
+        <input type="number" id="voxelResolution" value="32" min="16" max="56" step="4">
       </label>
       <label>착화 용도 (핏 여유)
         <select id="fit">
@@ -76,6 +85,8 @@
       <div id="measGrid" class="grid"></div>
       <h2>발가락별 3D 재구성</h2>
       <div id="toeReconGrid" class="grid"></div>
+      <h2>Voxel 재구성</h2>
+      <div id="voxelGrid" class="grid"></div>
       <h2>감지 결과</h2>
       <div id="detectionGrid" class="grid"></div>
       <h2>새끼발가락 핏 체크 <small>(신발 적합도)</small></h2>
@@ -106,6 +117,7 @@
       <button class="tab active" data-view="points">포인트클라우드</button>
       <button class="tab" data-view="foot">발</button>
       <button class="tab" data-view="toes">발가락</button>
+      <button class="tab" data-view="voxels">Voxel</button>
       <button class="tab" data-view="last">라스트</button>
       <button class="tab" data-view="shoe">신발</button>
       <button class="tab" data-view="insole">인솔</button>
